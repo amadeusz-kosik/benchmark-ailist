@@ -1,6 +1,7 @@
 package benchmark.ailist.java;
 
 
+import benchmark.Configuration;
 import benchmark.Interval;
 
 import java.io.Serializable;

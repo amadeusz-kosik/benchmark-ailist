@@ -1,17 +1,15 @@
 package benchmark.ailist
 
-import benchmark.Interval
-import benchmark.ailist.java
-import benchmark.ailist.scala
+import benchmark.{Configuration, Interval}
 import _root_.java.util
 
 
 object BenchmarkAdapter {
 
-  def benchmarkJavaAIList(database: Array[Interval], query: Array[Interval]): Array[(Interval, Interval)] = {
+  def benchmarkJavaAIList(configuration: Configuration)(database: Array[Interval], query: Array[Interval]): Array[(Interval, Interval)] = {
     import _root_.scala.jdk.CollectionConverters._
 
-    val aiListBuilder = new java.AIListBuilder(java.Configuration.DEFAULT)
+    val aiListBuilder = new java.AIListBuilder(configuration)
     val aiLists: Array[java.AIList] = aiListBuilder.build(new util.ArrayList(database.toBuffer.asJava)).asScala.toArray
 
     for {
@@ -21,8 +19,8 @@ object BenchmarkAdapter {
     } yield (lhsInterval, rhsInterval)
   }
 
-  def benchmarkScalaAIList(database: Array[Interval], query: Array[Interval]): Array[(Interval, Interval)] = {
-    val aiLists = scala.AIListBuilder.build(scala.Configuration.apply(), database)
+  def benchmarkScalaAIList(configuration: Configuration)(database: Array[Interval], query: Array[Interval]): Array[(Interval, Interval)] = {
+    val aiLists = scala.AIListBuilder.build(configuration, database)
 
     for {
       aiList      <- aiLists

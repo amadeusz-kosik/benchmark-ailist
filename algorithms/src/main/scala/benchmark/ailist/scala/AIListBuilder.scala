@@ -1,6 +1,6 @@
 package benchmark.ailist.scala
 
-import benchmark.Interval
+import benchmark.{Configuration, Interval}
 
 import scala.collection.mutable.ArrayBuffer
 

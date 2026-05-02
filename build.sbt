@@ -15,7 +15,10 @@ lazy val benchmarks = (project in file("benchmarks"))
   .settings(
     name := "benchmark-ailist-benchmarks",
     javacOptions  := defaultJavacOptions,
-    scalacOptions := defaultScalacOptions
+    scalacOptions := defaultScalacOptions,
+    libraryDependencies ++= Seq(
+      "org.scalatest" %% "scalatest" % "3.2.20" % Test,
+    )
   )
   .dependsOn(algorithms)
   .enablePlugins(JmhPlugin)

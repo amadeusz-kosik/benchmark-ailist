@@ -2,6 +2,14 @@
 <project version="4">
   <component name="ScalaCompilerConfiguration">
     <option name="separateProdTestSources" value="true" />
-    <profile name="sbt 1" modules="benchmark-ailist,benchmark-ailist.main,benchmark-ailist.test" />
+    <profile name="sbt 1" modules="benchmark-ailist,benchmark-ailist.benchmark-ailist-algorithms,benchmark-ailist.benchmark-ailist-benchmarks,benchmark-ailist.main,benchmark-ailist.test" />
+    <profile name="sbt 2" modules="benchmark-ailist.benchmark-ailist-algorithms.main,benchmark-ailist.benchmark-ailist-algorithms.test,benchmark-ailist.benchmark-ailist-benchmarks.main,benchmark-ailist.benchmark-ailist-benchmarks.test">
+      <option name="deprecationWarnings" value="true" />
+      <option name="uncheckedWarnings" value="true" />
+      <parameters>
+        <parameter value="-Xlint" />
+        <parameter value="-Xdisable-assertions" />
+      </parameters>
+    </profile>
   </component>
 </project>

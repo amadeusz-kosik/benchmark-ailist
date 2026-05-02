@@ -1,5 +1,7 @@
 package benchmark.ailist.scala
 
+import benchmark.Interval
+
 
 case class AIList(intervals: Array[Interval], maxE: Array[Long]) {
 

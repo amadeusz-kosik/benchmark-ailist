@@ -1,5 +1,7 @@
 package benchmark.ailist.java;
 
+import benchmark.Interval;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 

@@ -1,4 +1,4 @@
-package benchmark.ailist.scala
+package benchmark
 
 final case class Interval(
     from: Long,

@@ -1,6 +1,8 @@
 package benchmark.ailist.java;
 
 
+import benchmark.Interval;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.LinkedList;

@@ -1,6 +1,8 @@
 package benchmark.ailist.java;
 
 
+import benchmark.Interval;
+
 import java.util.Iterator;
 
 public class AIListIterator implements Iterator<Interval> {

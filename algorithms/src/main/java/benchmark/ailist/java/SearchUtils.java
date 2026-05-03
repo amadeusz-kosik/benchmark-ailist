@@ -35,9 +35,11 @@ public final class SearchUtils {
                 leftBound = middleIndex;
         }
 
-        if(intervals.get(leftBound).from() > queryEnd) {
+        if(intervals.get(leftBound).from() > queryEnd)
             return -1;
-        }
+
+        if(intervals.get(rightBound).from() <= queryEnd)
+            return rightBound;
 
         int index = leftBound;
 

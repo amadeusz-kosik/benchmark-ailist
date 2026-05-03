@@ -13,8 +13,7 @@ public class AIListIterator implements Iterator<Interval> {
 
     private int currentIntervalIndex;
 
-    public AIListIterator(final long queryStart, final long queryEnd, final AIList parentAIList)
-    {
+    public AIListIterator(final long queryStart, final long queryEnd, final AIList parentAIList) {
         this.queryStart = queryStart;
         this.queryEnd = queryEnd;
         this.parentAIList = parentAIList;

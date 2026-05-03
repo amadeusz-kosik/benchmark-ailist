@@ -11,7 +11,7 @@ import _root_.java.util.concurrent.TimeUnit
 
 
 @State(Scope.Benchmark)
-class ScalaAIListBenchmark {
+class AIListBenchmark {
 
   @Param(Array(
     "consecutive"

@@ -11,7 +11,6 @@ public final class SearchUtils {
         return findRightmost(intervals, queryStart, 63);
     }
 
-    // FIXME: test if rightmost is really rightmost
     public static int findRightmost(ArrayList<Interval> intervals, long queryEnd, long binaryCutoff) {
         // EDGE CASE:
         // All elements are less than queryEnd

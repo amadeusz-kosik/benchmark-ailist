@@ -9,13 +9,17 @@ case class AIList(intervals: Array[Interval], maxE: Array[Long]) {
         intervals.length
 
     def overlapping(query: Interval): Array[Interval] = {
-        intervals.iterator
-            .zip(maxE.iterator)
-            .dropWhile { case (interval, maxE) => maxE < query.from }
-            .takeWhile { case (interval, maxE) => interval.from <= query.to }
-            .map { case (interval, maxE) => interval }
-            .filter(interval => Interval.overlaps(interval, query))
-            .toArray
+        val lastCandidateIndex = SearchUtils.findRightmost(intervals, query.to)
+
+        if(lastCandidateIndex > -1) {
+            Range.inclusive(lastCandidateIndex, 0, -1)
+                .takeWhile(i => query.from <= maxE(i))
+                .filter(i => Interval.overlaps(intervals(i), query))
+                .map(i => intervals(i))
+                .toArray
+        } else {
+            Array.empty[Interval]
+        }
     }
 }
 

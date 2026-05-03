@@ -11,6 +11,7 @@ public final class SearchUtils {
         return findRightmost(intervals, queryStart, 63);
     }
 
+    // FIXME: test if rightmost is really rightmost
     public static int findRightmost(ArrayList<Interval> intervals, long queryEnd, long binaryCutoff) {
         // EDGE CASE:
         // All elements are less than queryEnd
@@ -29,18 +30,22 @@ public final class SearchUtils {
         while(rightBound -  leftBound > binaryCutoff) {
             int middleIndex = (leftBound + rightBound) / 2;
 
-            if (intervals.get(middleIndex).from() >= queryEnd)
+            if (intervals.get(middleIndex).from() > queryEnd)
                 rightBound = middleIndex;
             else
                 leftBound = middleIndex;
         }
 
-        for (int index = rightBound; index >= leftBound; index--) {
-            if (intervals.get(index).from() <= queryEnd) {
-                return index;
-            }
+        if(intervals.get(leftBound).from() > queryEnd) {
+            return -1;
         }
 
-        return -1;
+        int index = leftBound;
+
+        while(index + 1 < rightBound && intervals.get(index + 1).from() <= queryEnd) {
+            index += 1;
+        }
+
+        return index;
     }
 }

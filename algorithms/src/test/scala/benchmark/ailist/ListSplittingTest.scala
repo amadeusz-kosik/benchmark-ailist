@@ -101,7 +101,7 @@ class ListSplittingTest extends AnyFunSpec with Matchers {
   describe("Scala AIList") {
     it("splits example list to separate long, overlapping intervals from short ones") {
       val configuration = new Configuration(5, 2, 64, 0)
-      val aiLists = scala.AIListBuilder.build(configuration, basicData)
+      val aiLists = scala.AIListBuilder.buildMemoryOptimized(configuration, basicData)
 
       aiLists.length should be(3)
       aiLists.map(_.length) should be (Array(12, 6, 3))
@@ -109,7 +109,7 @@ class ListSplittingTest extends AnyFunSpec with Matchers {
 
     it("does not split if the coverage lookahead is turned off") {
       val configuration = new Configuration(5, 5, 64, 0)
-      val aiLists = scala.AIListBuilder.build(configuration, basicData)
+      val aiLists = scala.AIListBuilder.buildMemoryOptimized(configuration, basicData)
 
       aiLists.length should be(1)
       aiLists.map(_.length) should be (Array(21))
@@ -117,7 +117,7 @@ class ListSplittingTest extends AnyFunSpec with Matchers {
 
     it("splits to honour maximum component length") {
       val configuration = new Configuration(5, 5, 5, 0)
-      val aiLists = scala.AIListBuilder.build(configuration, basicData)
+      val aiLists = scala.AIListBuilder.buildMemoryOptimized(configuration, basicData)
 
       aiLists.length should be(5)
       aiLists.map(_.length) should be (Array(5, 5, 5, 5, 1))
@@ -125,7 +125,7 @@ class ListSplittingTest extends AnyFunSpec with Matchers {
 
     it("extracts the outliers from the flat group and put them at the end") {
       val configuration = new Configuration(5, 2, 64, 0)
-      val aiLists = scala.AIListBuilder.build(configuration, outlierData)
+      val aiLists = scala.AIListBuilder.buildMemoryOptimized(configuration, outlierData)
 
       aiLists.length should be(2)
       aiLists.map(_.length) should be (Array(9, 3))

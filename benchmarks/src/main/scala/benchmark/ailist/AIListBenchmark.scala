@@ -90,10 +90,29 @@ class AIListBenchmark {
   @Warmup(iterations = 3, time = 3, timeUnit = TimeUnit.SECONDS)
   @Measurement(iterations = 10, time = 3, timeUnit = TimeUnit.SECONDS)
   @OutputTimeUnit(TimeUnit.MILLISECONDS)
-  def benchmarkScalaAIList(blackhole: Blackhole) = {
+  def benchmarkScalaAIListMemoryOptimized(blackhole: Blackhole) = {
     val database = scalaDatabaseSources(databaseSourceSet)
     val query    = scalaQuery
-    val aiLists = scala.AIListBuilder.build(Configuration.apply(), database)
+    val aiLists = scala.AIListBuilder.buildMemoryOptimized(Configuration.apply(), database)
+
+    val result = for {
+      aiList      <- aiLists
+      rhsInterval <- query
+      lhsInterval <- aiList.overlapping(rhsInterval)
+    } yield (lhsInterval, rhsInterval)
+    blackhole.consume(result)
+  }
+
+  @Benchmark
+  @BenchmarkMode(Array(Mode.AverageTime))
+  @Fork(1)
+  @Warmup(iterations = 3, time = 3, timeUnit = TimeUnit.SECONDS)
+  @Measurement(iterations = 10, time = 3, timeUnit = TimeUnit.SECONDS)
+  @OutputTimeUnit(TimeUnit.MILLISECONDS)
+  def benchmarkScalaAIListSpeedOptimized(blackhole: Blackhole) = {
+    val database = scalaDatabaseSources(databaseSourceSet)
+    val query    = scalaQuery
+    val aiLists = scala.AIListBuilder.buildSpeedOptimized(Configuration.apply(), database)
 
     val result = for {
       aiList      <- aiLists

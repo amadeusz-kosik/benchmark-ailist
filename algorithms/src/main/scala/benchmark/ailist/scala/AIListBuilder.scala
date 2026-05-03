@@ -12,81 +12,89 @@ object AIListBuilder {
     assert(configuration.intervalsCountToCheckLookahead > 0)
     assert(configuration.maximumComponentSize > 0)
 
-    intervals.sorted(Ordering.by[Interval, (Long, Long)](i => (i.to, i.from)))
+    intervals.sortInPlace()(Ordering.by[Interval, (Long, Long)](i => (i.from, i.to)))
+
+    val componentStarts = ArrayBuffer[Integer]()
+    val componentLengths = ArrayBuffer[Integer]()
+
+    var componentLength = 0
 
     var arrayRead = 0
     var arrayWrite = 0
 
-    val componentStarts = ArrayBuffer[Integer]()
-    componentStarts += 0
+    def lastComponentEnd: Int = {
+      if(componentLengths.isEmpty)
+        0
+      else
+        componentStarts(componentLengths.length - 1) + componentLengths.last
+    }
 
-    val componentLengths = ArrayBuffer[Integer]()
-    var componentLength = 0
+    // Go through all the intervals until all of them are stored in the components.
+    while (lastComponentEnd < intervals.length) {
+      // Start new component
+      componentStarts += arrayRead
+      componentLength = 0
 
-    var sidecar = ArrayBuffer[Interval]()
+      // If there are few enough components for the early stop - stop.
+      if (intervals.length - lastComponentEnd <= configuration.earlyStopLeftoverCount) {
+        // Commit component for all leftover intervals without looping again.
+        componentLengths += intervals.length - lastComponentEnd
+        componentLength = 0
+      } else {
+        // Store intervals extracted from currently constructed component.
+        val sidecar = ArrayBuffer[Interval]()
 
-    while (arrayRead < intervals.length) {
-      if (componentLength >= configuration.maximumComponentSize) {
-        componentStarts += arrayWrite
+        // Until the component has not yet reached maximum size and there are more intervals that might be included,
+        //  loop through the input array of intervals.
+        while (arrayRead < intervals.length) {
+          if(componentLength >= configuration.maximumComponentSize) {
+            // Jump to next interval, but do not empty sidecar.
+            componentStarts += arrayWrite
+            componentLengths += componentLength
+            componentLength = 0
+          }
 
-        var backfill = arrayWrite
+          def nextInterval = intervals(arrayRead)
 
-        sidecar.foreach { sidecarInterval =>
-          intervals(backfill) = sidecarInterval
-          backfill += 1
+          // Compute the interval coverage - how many further intervals are fully shadowed by the current one.
+          val includeInCurrentComponent = {
+            val lookaheadCoverage = intervals.view
+              .slice(arrayRead + 1, intervals.length)
+              .take(configuration.intervalsCountToCheckLookahead)
+              .count(_.to <= nextInterval.to)
+
+            lookaheadCoverage <= configuration.intervalsCountToTriggerExtraction
+          }
+
+          if (includeInCurrentComponent) {
+            intervals(arrayWrite) = intervals(arrayRead)
+
+            arrayRead += 1
+            arrayWrite += 1
+            componentLength += 1
+          } else {
+            // Kick the interval out from the current interval
+            sidecar += nextInterval
+            arrayRead += 1
+          }
         }
 
-        sidecar = ArrayBuffer[Interval]()
+        // Commit the component.
         componentLengths += componentLength
 
-        componentLength = 0
-        arrayRead = arrayWrite
-      }
+        // Bring intervals from the sidecar back into the main array.
+        if (sidecar.nonEmpty) {
+          var backfill = arrayWrite
 
-      def nextInterval = intervals(arrayRead)
+          sidecar.foreach { sidecarInterval =>
+            intervals(backfill) = sidecarInterval
+            backfill += 1
+          }
 
-      val includeInCurrentComponent = {
-        val lookaheadCoverage = intervals.view
-          .slice(arrayRead + 1, intervals.length)
-          .take(configuration.intervalsCountToCheckLookahead)
-          .count(_.to <= nextInterval.to)
-
-        lookaheadCoverage <= configuration.intervalsCountToTriggerExtraction
-      }
-
-      if (includeInCurrentComponent) {
-        // Write only if necessary
-        if (arrayRead != arrayWrite)
-          intervals(arrayWrite) = intervals(arrayRead)
-
-        arrayRead += 1
-        arrayWrite += 1
-        componentLength += 1
-      } else {
-        // Kick the interval out from the current interval
-        sidecar += nextInterval
-        arrayRead += 1
+          arrayRead = arrayWrite
+        }
       }
     }
-
-    // Commit the last component
-    if(componentLength != 0) {
-      componentLengths += componentLength
-      componentLength = 0
-    }
-
-    if(arrayWrite != arrayRead) {
-      var backfill = arrayWrite
-
-      sidecar.foreach { sidecarInterval =>
-        intervals(backfill) = sidecarInterval
-        backfill += 1
-      }
-
-      componentStarts += arrayWrite
-      componentLengths += sidecar.length
-    }
-
 
     componentStarts
       .zip(componentLengths).map { case (cStart, cLength) =>

@@ -3,11 +3,12 @@ package benchmark
 final case class Configuration(
     intervalsCountToCheckLookahead: Int,
     intervalsCountToTriggerExtraction: Int,
-    maximumComponentSize: Int
+    maximumComponentSize: Int,
+    earlyStopLeftoverCount: Int
 )
 
 object Configuration {
     def apply(): Configuration =
-        Configuration(24, 16, 100000)
+        Configuration(24, 16, 100000, 1)
 }
 

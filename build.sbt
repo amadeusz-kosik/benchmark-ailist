@@ -8,17 +8,17 @@ lazy val algorithms = (project in file("algorithms"))
   .settings(
     name := "benchmark-ailist-algorithms",
     javacOptions  := defaultJavacOptions,
-    scalacOptions := defaultScalacOptions
+    scalacOptions := defaultScalacOptions,
+    libraryDependencies ++= Seq(
+      "org.scalatest" %% "scalatest" % "3.2.20" % Test,
+    )
   )
 
 lazy val benchmarks = (project in file("benchmarks"))
   .settings(
     name := "benchmark-ailist-benchmarks",
     javacOptions  := defaultJavacOptions,
-    scalacOptions := defaultScalacOptions,
-    libraryDependencies ++= Seq(
-      "org.scalatest" %% "scalatest" % "3.2.20" % Test,
-    )
+    scalacOptions := defaultScalacOptions
   )
   .dependsOn(algorithms)
   .enablePlugins(JmhPlugin)

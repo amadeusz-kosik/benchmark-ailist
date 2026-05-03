@@ -18,22 +18,4 @@ object BenchmarkAdapter {
       lhsInterval <- aiList.overlapping(rhsInterval).asScala
     } yield (lhsInterval, rhsInterval)
   }
-
-  def benchmarkScalaAIList(configuration: Configuration)(database: Array[Interval], query: Array[Interval]): Array[(Interval, Interval)] = {
-    val aiLists = scala.AIListBuilder.build(configuration, database)
-
-    for {
-      aiList      <- aiLists
-      rhsInterval <- query
-      lhsInterval <- aiList.overlapping(rhsInterval)
-    } yield (lhsInterval, rhsInterval)
-  }
-
-  def benchmarkScalaReference(database: Array[Interval], query: Array[Interval]): Array[(Interval, Interval)] = {
-    for {
-      lhsInterval <- database
-      rhsInterval <- query
-      if Interval.overlaps(lhsInterval, rhsInterval)
-    } yield (lhsInterval, rhsInterval)
-  }
 }

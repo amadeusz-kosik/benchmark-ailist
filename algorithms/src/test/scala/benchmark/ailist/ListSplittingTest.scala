@@ -1,6 +1,7 @@
 package benchmark.ailist
 
 import java.AIListBuilder
+
 import _root_.java.util
 import benchmark.{Configuration, Interval}
 import org.scalatest.funspec.AnyFunSpec
@@ -51,85 +52,89 @@ class ListSplittingTest extends AnyFunSpec with Matchers {
     Interval(9, 10)
   )
 
-  describe("Java AIList") {
-    import _root_.scala.jdk.CollectionConverters._
+  Map(
+    "built with array list"     -> ((configuration: Configuration) => new AIListBuilder(configuration).buildArrayFromIterator _),
+    "built with priority queue" -> ((configuration: Configuration) => new AIListBuilder(configuration).buildQueueFromIterator _)
+  ) foreach { case (name, buildFn) =>
 
-    it("splits example list to separate long, overlapping intervals from short ones") {
-      val configuration = new Configuration(5, 2, 64, 0)
-      val aiListBuilder = new AIListBuilder(configuration)
-      val aiLists = aiListBuilder.buildFromIterator(basicData.iterator)
+    describe(s"Java AIList $name") {
+      it("splits example list to separate long, overlapping intervals from short ones") {
+        val configuration = new Configuration(5, 2, 64, 0)
+        val aiLists = buildFn(configuration)(basicData.iterator)
 
-      aiLists.size should be(3)
-      aiLists.get(0).size() should be (12)
-      aiLists.get(1).size() should be (6)
-      aiLists.get(2).size() should be (3)
-    }
+        aiLists.size should be(3)
+        aiLists.get(0).size() should be(12)
+        aiLists.get(1).size() should be(6)
+        aiLists.get(2).size() should be(3)
+      }
 
-    it("does not split if the coverage lookahead is turned off") {
-      val configuration = new Configuration(5, 5, 64, 0)
-      val aiListBuilder = new AIListBuilder(configuration)
-      val aiLists = aiListBuilder.buildFromIterator(basicData.iterator)
+      it("does not split if the coverage lookahead is turned off") {
+        val configuration = new Configuration(5, 5, 64, 0)
+        val aiLists = buildFn(configuration)(basicData.iterator)
 
-      aiLists.size should be(1)
-      aiLists.get(0).size() should be (21)
-    }
+        aiLists.size should be(1)
+        aiLists.get(0).size() should be(21)
+      }
 
-    it("splits to honour maximum component length") {
-      val configuration = new Configuration(5, 5, 5, 0)
-      val aiListBuilder = new AIListBuilder(configuration)
-      val aiLists = aiListBuilder.buildFromIterator(basicData.iterator)
+      it("splits to honour maximum component length") {
+        val configuration = new Configuration(5, 5, 5, 0)
+        val aiLists = buildFn(configuration)(basicData.iterator)
 
-      aiLists.size should be(5)
-      aiLists.get(0).size() should be (5)
-      aiLists.get(1).size() should be (5)
-      aiLists.get(2).size() should be (5)
-      aiLists.get(3).size() should be (5)
-      aiLists.get(4).size() should be (1)
-    }
+        aiLists.size should be(5)
+        aiLists.get(0).size() should be(5)
+        aiLists.get(1).size() should be(5)
+        aiLists.get(2).size() should be(5)
+        aiLists.get(3).size() should be(5)
+        aiLists.get(4).size() should be(1)
+      }
 
-    it("extracts the outliers from the flat group and put them at the end") {
-      val configuration = new Configuration(5, 2, 64, 0)
-      val aiListBuilder = new AIListBuilder(configuration)
-      val aiLists = aiListBuilder.buildFromIterator(outlierData.iterator)
+      it("extracts the outliers from the flat group and put them at the end") {
+        val configuration = new Configuration(5, 2, 64, 0)
+        val aiLists = buildFn(configuration)(outlierData.iterator)
 
-      aiLists.size should be(2)
-      aiLists.get(0).size() should be (9)
-      aiLists.get(1).size() should be (3)
-    }
-  }
-
-  describe("Scala AIList") {
-    it("splits example list to separate long, overlapping intervals from short ones") {
-      val configuration = new Configuration(5, 2, 64, 0)
-      val aiLists = scala.AIListBuilder.buildMemoryOptimized(configuration, basicData.iterator)
-
-      aiLists.length should be(3)
-      aiLists.map(_.length) should be (Array(12, 6, 3))
-    }
-
-    it("does not split if the coverage lookahead is turned off") {
-      val configuration = new Configuration(5, 5, 64, 0)
-      val aiLists = scala.AIListBuilder.buildMemoryOptimized(configuration, basicData.iterator)
-
-      aiLists.length should be(1)
-      aiLists.map(_.length) should be (Array(21))
-    }
-
-    it("splits to honour maximum component length") {
-      val configuration = new Configuration(5, 5, 5, 0)
-      val aiLists = scala.AIListBuilder.buildMemoryOptimized(configuration, basicData.iterator)
-
-      aiLists.length should be(5)
-      aiLists.map(_.length) should be (Array(5, 5, 5, 5, 1))
-    }
-
-    it("extracts the outliers from the flat group and put them at the end") {
-      val configuration = new Configuration(5, 2, 64, 0)
-      val aiLists = scala.AIListBuilder.buildMemoryOptimized(configuration, outlierData.iterator)
-
-      aiLists.length should be(2)
-      aiLists.map(_.length) should be (Array(9, 3))
+        aiLists.size should be(2)
+        aiLists.get(0).size() should be(9)
+        aiLists.get(1).size() should be(3)
+      }
     }
   }
 
+  Map(
+    "built with array in place" -> scala.AIListBuilder.buildArrayInPlace _,
+    "built with deque"          -> scala.AIListBuilder.buildDeque _
+  ) foreach { case (name, buildFn) =>
+    describe(s"Scala AIList $name") {
+      it("splits example list to separate long, overlapping intervals from short ones") {
+        val configuration = new Configuration(5, 2, 64, 0)
+        val aiLists = buildFn(configuration, basicData.iterator)
+
+        aiLists.length should be(3)
+        aiLists.map(_.length) should be(Array(12, 6, 3))
+      }
+
+      it("does not split if the coverage lookahead is turned off") {
+        val configuration = new Configuration(5, 5, 64, 0)
+        val aiLists = scala.AIListBuilder.buildArrayInPlace(configuration, basicData.iterator)
+
+        aiLists.length should be(1)
+        aiLists.map(_.length) should be(Array(21))
+      }
+
+      it("splits to honour maximum component length") {
+        val configuration = new Configuration(5, 5, 5, 0)
+        val aiLists = scala.AIListBuilder.buildArrayInPlace(configuration, basicData.iterator)
+
+        aiLists.length should be(5)
+        aiLists.map(_.length) should be(Array(5, 5, 5, 5, 1))
+      }
+
+      it("extracts the outliers from the flat group and put them at the end") {
+        val configuration = new Configuration(5, 2, 64, 0)
+        val aiLists = scala.AIListBuilder.buildArrayInPlace(configuration, outlierData.iterator)
+
+        aiLists.length should be(2)
+        aiLists.map(_.length) should be(Array(9, 3))
+      }
+    }
+  }
 }

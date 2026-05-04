@@ -8,7 +8,7 @@ import scala.collection.mutable.ArrayBuffer
 
 object AIListBuilder {
 
-  def buildSpeedOptimized(configuration: Configuration, sourceIntervals: Iterator[Interval]): Array[AIList] = {
+  def buildDeque(configuration: Configuration, sourceIntervals: Iterator[Interval]): Array[AIList] = {
     assert(configuration.intervalsCountToCheckLookahead >= configuration.intervalsCountToTriggerExtraction)
     assert(configuration.intervalsCountToCheckLookahead > 0)
     assert(configuration.maximumComponentSize > 0)
@@ -50,7 +50,7 @@ object AIListBuilder {
     results.toArray
   }
 
-  def buildMemoryOptimized(configuration: Configuration, sourceIntervals: Iterator[Interval]): Array[AIList] = {
+  def buildArrayInPlace(configuration: Configuration, sourceIntervals: Iterator[Interval]): Array[AIList] = {
     assert(configuration.intervalsCountToCheckLookahead >= configuration.intervalsCountToTriggerExtraction)
     assert(configuration.intervalsCountToCheckLookahead > 0)
     assert(configuration.maximumComponentSize > 0)
@@ -86,7 +86,7 @@ object AIListBuilder {
         componentLength = 0
       } else {
         // Store intervals extracted from currently constructed component.
-        val sidecar = ArrayBuffer[Interval]()
+        val sidecar = mutable.ArrayDeque[Interval]()
 
         // Until the component has not yet reached maximum size and there are more intervals that might be included,
         //  loop through the input array of intervals.

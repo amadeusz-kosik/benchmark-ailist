@@ -18,12 +18,24 @@ public class AIListBuilder implements Serializable {
         this.config = config;
     }
 
-    public List<AIList> buildFromIterator(final Iterator<Interval> scalaIterator) {
+    public List<AIList> buildArrayFromIterator(final Iterator<Interval> scalaIterator) {
+        ArrayList<Interval> intervalsList = new ArrayList<>();
+        while(scalaIterator.hasNext())
+            intervalsList.add(scalaIterator.next());
+
+        intervalsList.sort(new IntervalComparator());
+        return buildFromArray(intervalsList);
+    }
+
+    public List<AIList> buildQueueFromIterator(final Iterator<Interval> scalaIterator) {
         PriorityQueue<Interval> intervalsQueue = new PriorityQueue<>(new IntervalComparator());
         while(scalaIterator.hasNext())
             intervalsQueue.add(scalaIterator.next());
 
-        ArrayList<Interval> intervals = new ArrayList<>(intervalsQueue);
+        ArrayList<Interval> intervals = new ArrayList<>(intervalsQueue.size());
+        while(! intervalsQueue.isEmpty())
+            intervals.add(intervalsQueue.poll());
+
         return buildFromArray(intervals);
     }
 
@@ -31,8 +43,6 @@ public class AIListBuilder implements Serializable {
         assert config.intervalsCountToCheckLookahead() >= config.intervalsCountToTriggerExtraction();
         assert config.intervalsCountToCheckLookahead() > 0;
         assert config.maximumComponentSize() > 0;
-
-        intervals.sort(new IntervalComparator());
 
         List<AIList> results = new LinkedList<>();
 

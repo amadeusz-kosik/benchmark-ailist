@@ -49,10 +49,10 @@ class AIListBenchmark {
 
 
   @Benchmark
-  def benchmarkJavaAIList(blackhole: Blackhole): Unit = {
+  def benchmarkJavaAIListArray(blackhole: Blackhole): Unit = {
     val database = databaseSources(databaseSourceSet)
     val aiListBuilder = new java.AIListBuilder(Configuration.apply())
-    val aiLists = aiListBuilder.buildFromIterator(database.iterator)
+    val aiLists = aiListBuilder.buildArrayFromIterator(database.iterator)
 
     val result = new util.LinkedList[(Interval, Interval)]()
 
@@ -65,9 +65,25 @@ class AIListBenchmark {
   }
 
   @Benchmark
-  def benchmarkScalaAIListMemoryOptimized(blackhole: Blackhole): Unit = {
+  def benchmarkJavaAIListQueue(blackhole: Blackhole): Unit = {
     val database = databaseSources(databaseSourceSet)
-    val aiLists = scala.AIListBuilder.buildMemoryOptimized(Configuration.apply(), database.iterator)
+    val aiListBuilder = new java.AIListBuilder(Configuration.apply())
+    val aiLists = aiListBuilder.buildQueueFromIterator(database.iterator)
+
+    val result = new util.LinkedList[(Interval, Interval)]()
+
+    aiLists.forEach ( aiList =>
+      query.foreach( rhsInterval =>
+        aiList.overlapping(rhsInterval).forEachRemaining(lhsInterval => result.push((lhsInterval, rhsInterval)))
+      )
+    )
+    blackhole.consume(result)
+  }
+
+  @Benchmark
+  def benchmarkScalaAIListArrayInPlace(blackhole: Blackhole): Unit = {
+    val database = databaseSources(databaseSourceSet)
+    val aiLists = scala.AIListBuilder.buildArrayInPlace(Configuration.apply(), database.iterator)
 
     val result = for {
       aiList      <- aiLists
@@ -79,9 +95,9 @@ class AIListBenchmark {
   }
 
   @Benchmark
-  def benchmarkScalaAIListSpeedOptimized(blackhole: Blackhole): Unit = {
+  def benchmarkScalaAIListDeque(blackhole: Blackhole): Unit = {
     val database = databaseSources(databaseSourceSet)
-    val aiLists = scala.AIListBuilder.buildSpeedOptimized(Configuration.apply(), database.iterator)
+    val aiLists = scala.AIListBuilder.buildDeque(Configuration.apply(), database.iterator)
 
     val result = for {
       aiList      <- aiLists

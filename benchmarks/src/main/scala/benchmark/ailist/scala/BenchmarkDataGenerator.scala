@@ -4,7 +4,15 @@ import benchmark.Interval
 
 object BenchmarkDataGenerator {
 
-  def consecutive(rowsCount: Int): Array[Interval] = intervals(rowsCount, 2, 0)
+  def consecutive(rowsCount: Int): Array[Interval] = {
+    assert(rowsCount > 0)
+
+    (0 until rowsCount)
+      .map { i =>
+        Interval(i, i)
+      }
+      .toArray
+  }
 
   def sparse(rowsCount: Int): Array[Interval] = {
     assert(rowsCount > 0)
@@ -18,52 +26,47 @@ object BenchmarkDataGenerator {
       .toArray
   }
 
-  def overlapping(rowsCount: Int): Array[Interval] = intervals(rowsCount, 2, 1)
-
-  private def intervals(rowsCount: Int, width: Int, overlap: Int): Array[Interval] = {
+  def overlapping(rowsCount: Int): Array[Interval] = {
     assert(rowsCount > 0)
-    assert(width >= 0)
-    assert(overlap >= 0)
+
+    val Gap = 10
+    val Overlap = 5
 
     (0 until rowsCount)
       .map { i =>
-        val from = i.toLong * width - (overlap / 2)
-        val to = from + width - 1 + overlap
+        Interval(i * Gap - Overlap, i * Gap + Overlap)
+      }
+      .toArray
+  }
 
-        Interval(from, to)
+  def lasting(rowsCount: Int): Array[Interval] = {
+    assert(rowsCount > 0)
+
+    val Gap = 10
+    val Width = 1000
+
+    (0 until rowsCount)
+      .map { i =>
+        Interval(i * Gap, i * Gap + Width)
+      }
+      .toArray
+  }
+
+  def outliers(rowsCount: Int): Array[Interval] = {
+    assert(rowsCount > 0)
+
+    val Gap = 10
+    val OutlierChance = 1000
+    val OutlierWidth = 10000
+    val Width = 5
+
+    (0 until rowsCount)
+      .map { i =>
+        if (i % OutlierChance == 0)
+          Interval(i * Gap, i * Gap + OutlierWidth)
+        else
+          Interval(i * Gap, i * Gap + Width)
       }
       .toArray
   }
 }
-
-//object DataGenerator {
-//
-//
-//  def wide(rowsCount: Int): ArrayList[Interval] = intervals(rowsCount, 256, 0, new ArrayList(rowsCount))
-//
-//  def lasting(rowsCount: Int): ArrayList[Interval] = intervals(rowsCount, 16, 16, new ArrayList(rowsCount))
-//
-//  def mixed(rowsCount: Int, layers: Int): ArrayList[Interval] = {
-//    assert(layers > 0)
-//    val output = new ArrayList(rowsCount * layers)
-//    for (i <- 1 to layers) {
-//      intervals(rowsCount, 4 * i, 0, output)
-//    }
-//    output
-//  }
-//
-//  def shortPoisson(rowsCount: Int): ArrayList[Interval] = {
-//    assert(rowsCount > 0)
-//    val WIDTH_MEAN = 16
-//    val result = new ArrayList(rowsCount)
-//    val randomGenerator = new Well19937c(1337)
-//    val generator = new PoissonDistribution(randomGenerator, PoissonDistribution.DEFAULT_EPSILON, PoissonDistribution.DEFAULT_MAX_ITERATIONS, WIDTH_MEAN)
-//    for (i <- 0 until rowsCount) {
-//      val width = generator.sample
-//      val from = i.toLong * (WIDTH_MEAN + 1)
-//      val to = from + width
-//      result.add(new Interval(i, from, to))
-//    }
-//    result
-//  }
-//}

@@ -2,9 +2,21 @@ package benchmark.ailist.scala
 
 import benchmark.Interval
 
-object DataGenerator {
+object BenchmarkDataGenerator {
 
   def consecutive(rowsCount: Int): Array[Interval] = intervals(rowsCount, 2, 0)
+
+  def sparse(rowsCount: Int): Array[Interval] = {
+    assert(rowsCount > 0)
+
+    val Gap = 10
+
+    (0 until rowsCount)
+      .map { i =>
+        Interval(i * Gap, i * Gap + (Gap / 2))
+      }
+      .toArray
+  }
 
   def overlapping(rowsCount: Int): Array[Interval] = intervals(rowsCount, 2, 1)
 

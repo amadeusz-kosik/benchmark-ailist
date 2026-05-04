@@ -2,6 +2,7 @@ package benchmark.ailist
 
 import benchmark.ailist.java
 import benchmark.ailist.scala
+import benchmark.ailist.scala.BenchmarkDataGenerator
 import benchmark.{Configuration, Interval}
 import org.openjdk.jmh.annotations._
 import org.openjdk.jmh.infra.Blackhole
@@ -14,27 +15,21 @@ import _root_.java.util.concurrent.TimeUnit
 class AIListBenchmark {
 
   @Param(Array(
-    "consecutive"
-//    "sparse",
+    "consecutive",
+    "sparse"
 //    "overlapping",
 //    "lasting",
 //    "outliers"
   ))
   var databaseSourceSet: String = _
 
-  @Param(Array(
-    "100",
-    "1000",
-    "10000"
-  ))
-  var queryRowLength: Long = _
-
   final private val databaseCount = 100000
   final private val queryCount = 1000
 
   private val databaseSources: Map[String, Array[Interval]] = {
     Map(
-      "consecutive" -> scala.DataGenerator.consecutive(databaseCount)
+      "consecutive" -> BenchmarkDataGenerator.consecutive(databaseCount),
+      "sparse"      -> BenchmarkDataGenerator.sparse(databaseCount)
     )
   }
 
@@ -63,7 +58,7 @@ class AIListBenchmark {
   @Warmup(iterations = 3, time = 3, timeUnit = TimeUnit.SECONDS)
   @Measurement(iterations = 10, time = 3, timeUnit = TimeUnit.SECONDS)
   @OutputTimeUnit(TimeUnit.MILLISECONDS)
-  def benchmarkJavaAIList(blackhole: Blackhole) = {
+  def benchmarkJavaAIList(blackhole: Blackhole): Unit = {
     val database = databaseSources(databaseSourceSet)
     val aiListBuilder = new java.AIListBuilder(Configuration.apply())
     val aiLists = aiListBuilder.buildFromIterator(database.iterator)
@@ -84,7 +79,7 @@ class AIListBenchmark {
   @Warmup(iterations = 3, time = 3, timeUnit = TimeUnit.SECONDS)
   @Measurement(iterations = 10, time = 3, timeUnit = TimeUnit.SECONDS)
   @OutputTimeUnit(TimeUnit.MILLISECONDS)
-  def benchmarkScalaAIListMemoryOptimized(blackhole: Blackhole) = {
+  def benchmarkScalaAIListMemoryOptimized(blackhole: Blackhole): Unit = {
     val database = databaseSources(databaseSourceSet)
     val query    = scalaQuery
     val aiLists = scala.AIListBuilder.buildMemoryOptimized(Configuration.apply(), database.iterator)
@@ -104,7 +99,7 @@ class AIListBenchmark {
   @Warmup(iterations = 3, time = 3, timeUnit = TimeUnit.SECONDS)
   @Measurement(iterations = 10, time = 3, timeUnit = TimeUnit.SECONDS)
   @OutputTimeUnit(TimeUnit.MILLISECONDS)
-  def benchmarkScalaAIListSpeedOptimized(blackhole: Blackhole) = {
+  def benchmarkScalaAIListSpeedOptimized(blackhole: Blackhole): Unit = {
     val database = databaseSources(databaseSourceSet)
     val query    = scalaQuery
     val aiLists = scala.AIListBuilder.buildSpeedOptimized(Configuration.apply(), database.iterator)
@@ -124,7 +119,7 @@ class AIListBenchmark {
   @Warmup(iterations = 3, time = 3, timeUnit = TimeUnit.SECONDS)
   @Measurement(iterations = 10, time = 3, timeUnit = TimeUnit.SECONDS)
   @OutputTimeUnit(TimeUnit.MILLISECONDS)
-  def benchmarkScalaReference(blackhole: Blackhole) = {
+  def benchmarkScalaReference(blackhole: Blackhole): Unit = {
     val database = databaseSources(databaseSourceSet)
     val query    = scalaQuery
 

@@ -5,9 +5,9 @@ import benchmark.Configuration;
 import benchmark.Interval;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
+
+import scala.collection.Iterator;
 
 
 public class AIListBuilder implements Serializable {
@@ -18,7 +18,16 @@ public class AIListBuilder implements Serializable {
         this.config = config;
     }
 
-    public List<AIList> build(ArrayList<Interval> intervals) {
+    public List<AIList> buildFromIterator(final Iterator<Interval> scalaIterator) {
+        PriorityQueue<Interval> intervalsQueue = new PriorityQueue<>(new IntervalComparator());
+        while(scalaIterator.hasNext())
+            intervalsQueue.add(scalaIterator.next());
+
+        ArrayList<Interval> intervals = new ArrayList<>(intervalsQueue);
+        return buildFromArray(intervals);
+    }
+
+    public List<AIList> buildFromArray(ArrayList<Interval> intervals) {
         assert config.intervalsCountToCheckLookahead() >= config.intervalsCountToTriggerExtraction();
         assert config.intervalsCountToCheckLookahead() > 0;
         assert config.maximumComponentSize() > 0;
@@ -53,7 +62,7 @@ public class AIListBuilder implements Serializable {
         return results;
     }
 
-    private boolean computeCoverage(final long intervalTo, final ArrayList<Interval> intervals) {
+    private boolean computeCoverage(final long intervalTo, final List<Interval> intervals) {
         int lookaheadCoverage = 0;
 
         // Count interval's coverage: how many further intervals are "covered" by the current one's length.

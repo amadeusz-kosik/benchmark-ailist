@@ -8,12 +8,14 @@ import scala.collection.mutable.ArrayBuffer
 
 object AIListBuilder {
 
-  def buildSpeedOptimized(configuration: Configuration, sourceIntervals: Array[Interval]): Array[AIList] = {
+  def buildSpeedOptimized(configuration: Configuration, sourceIntervals: Iterator[Interval]): Array[AIList] = {
     assert(configuration.intervalsCountToCheckLookahead >= configuration.intervalsCountToTriggerExtraction)
     assert(configuration.intervalsCountToCheckLookahead > 0)
     assert(configuration.maximumComponentSize > 0)
 
-    var intervals = mutable.ArrayDeque.from(sourceIntervals.sorted(Ordering.by[Interval, (Long, Long)](i => (i.from, i.to))))
+    var intervals = mutable.ArrayDeque.from(
+      sourceIntervals.toArray.sorted(Ordering.by[Interval, (Long, Long)](i => (i.from, i.to)))
+    )
     val results = ArrayBuffer[AIList]()
 
     while(intervals.nonEmpty) {
@@ -48,11 +50,12 @@ object AIListBuilder {
     results.toArray
   }
 
-  def buildMemoryOptimized(configuration: Configuration, intervals: Array[Interval]): Array[AIList] = {
+  def buildMemoryOptimized(configuration: Configuration, sourceIntervals: Iterator[Interval]): Array[AIList] = {
     assert(configuration.intervalsCountToCheckLookahead >= configuration.intervalsCountToTriggerExtraction)
     assert(configuration.intervalsCountToCheckLookahead > 0)
     assert(configuration.maximumComponentSize > 0)
 
+    val intervals = sourceIntervals.toArray
     intervals.sortInPlace()(Ordering.by[Interval, (Long, Long)](i => (i.from, i.to)))
 
     val componentStarts = ArrayBuffer[Integer]()

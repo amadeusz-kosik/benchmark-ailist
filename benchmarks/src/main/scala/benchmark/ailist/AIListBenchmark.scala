@@ -11,8 +11,8 @@ import _root_.java.util.concurrent.TimeUnit
 
 @BenchmarkMode(Array(Mode.AverageTime))
 @Fork(1)
-@Warmup(iterations = 3, time = 3, timeUnit = TimeUnit.SECONDS)
-@Measurement(iterations = 10, time = 3, timeUnit = TimeUnit.SECONDS)
+@Warmup(iterations = 3, time = 10, timeUnit = TimeUnit.SECONDS)
+@Measurement(iterations = 10, time = 90, timeUnit = TimeUnit.SECONDS)
 @OutputTimeUnit(TimeUnit.MILLISECONDS)
 @State(Scope.Benchmark)
 class AIListBenchmark {
@@ -27,25 +27,10 @@ class AIListBenchmark {
   var databaseSourceSet: String = _
 
   final private val databaseCount = 100000
-  final private val queryCount = 1000
+  final private val queryCount    = 1000
 
-  private val databaseSources: Map[String, Array[Interval]] = {
-    Map(
-      "consecutive" -> BenchmarkDataGenerator.consecutive(databaseCount),
-      "sparse"      -> BenchmarkDataGenerator.sparse(databaseCount),
-      "overlapping" -> BenchmarkDataGenerator.overlapping(databaseCount),
-      "lasting"     -> BenchmarkDataGenerator.lasting(databaseCount),
-      "outliers"    -> BenchmarkDataGenerator.outliers(databaseCount)
-    )
-  }
-
-  private val query: Array[Interval] = {
-    val queryWidth = databaseCount * 10 / queryCount
-
-    (0 until queryCount)
-      .map { queryIndex => Interval(queryIndex * queryWidth, (queryIndex + 1) * queryWidth - 1) }
-      .toArray
-  }
+  private val databaseSources = BenchmarkDataGenerator.databaseSources(databaseCount)
+  private val query           = BenchmarkDataGenerator.querySources(databaseCount, queryCount)
 
 
   @Benchmark

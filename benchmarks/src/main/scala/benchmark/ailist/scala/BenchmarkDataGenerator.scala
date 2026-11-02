@@ -2,9 +2,27 @@ package benchmark.ailist.scala
 
 import benchmark.Interval
 
+
 object BenchmarkDataGenerator {
 
-  def consecutive(rowsCount: Int): Array[Interval] = {
+  def databaseSources(databaseCount: Int): Map[String, Array[Interval]] =
+    Map(
+      "consecutive" -> BenchmarkDataGenerator.consecutive(databaseCount),
+      "sparse"      -> BenchmarkDataGenerator.sparse(databaseCount),
+      "overlapping" -> BenchmarkDataGenerator.overlapping(databaseCount),
+      "lasting"     -> BenchmarkDataGenerator.lasting(databaseCount),
+      "outliers"    -> BenchmarkDataGenerator.outliers(databaseCount)
+    )
+
+  def querySources(databaseCount: Int, queryCount: Int): Array[Interval] = {
+    val queryWidth = databaseCount * 10 / queryCount
+
+    (0 until queryCount)
+      .map { queryIndex => Interval(queryIndex * queryWidth, (queryIndex + 1) * queryWidth - 1) }
+      .toArray
+  }
+
+  private def consecutive(rowsCount: Int): Array[Interval] = {
     assert(rowsCount > 0)
 
     (0 until rowsCount)
@@ -14,7 +32,7 @@ object BenchmarkDataGenerator {
       .toArray
   }
 
-  def sparse(rowsCount: Int): Array[Interval] = {
+  private def sparse(rowsCount: Int): Array[Interval] = {
     assert(rowsCount > 0)
 
     val Gap = 10
@@ -26,7 +44,7 @@ object BenchmarkDataGenerator {
       .toArray
   }
 
-  def overlapping(rowsCount: Int): Array[Interval] = {
+  private def overlapping(rowsCount: Int): Array[Interval] = {
     assert(rowsCount > 0)
 
     val Gap = 10
@@ -39,7 +57,7 @@ object BenchmarkDataGenerator {
       .toArray
   }
 
-  def lasting(rowsCount: Int): Array[Interval] = {
+  private def lasting(rowsCount: Int): Array[Interval] = {
     assert(rowsCount > 0)
 
     val Gap = 10
@@ -52,7 +70,7 @@ object BenchmarkDataGenerator {
       .toArray
   }
 
-  def outliers(rowsCount: Int): Array[Interval] = {
+  private def outliers(rowsCount: Int): Array[Interval] = {
     assert(rowsCount > 0)
 
     val Gap = 10

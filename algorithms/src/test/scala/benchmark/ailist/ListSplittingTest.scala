@@ -2,7 +2,6 @@ package benchmark.ailist
 
 import java.AIListBuilder
 
-import _root_.java.util
 import benchmark.{Configuration, Interval}
 import org.scalatest.funspec.AnyFunSpec
 import org.scalatest.matchers.should.Matchers

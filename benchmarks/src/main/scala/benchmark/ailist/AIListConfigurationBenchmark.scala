@@ -1,7 +1,7 @@
 package benchmark.ailist
 
 import benchmark.ailist.scala.BenchmarkDataGenerator
-import benchmark.{Configuration, Interval}
+import benchmark.Configuration
 import org.openjdk.jmh.annotations._
 import org.openjdk.jmh.infra.Blackhole
 
@@ -31,25 +31,25 @@ class AIListConfigurationBenchmark {
   private val databaseSources = BenchmarkDataGenerator.databaseSources(databaseCount)
   private val query           = BenchmarkDataGenerator.querySources(databaseCount, queryCount)
 
-  @Param(Array(8, 16, 24, 32))
-  var intervalsCountToCheckLookahead: Int = _
+  @Param(Array("8", "16", "24", "32"))
+  var intervalsCountToCheckLookahead: String = _
 
-  @Param(Array(1, 2, 4))
-  var intervalsCountToTriggerExtractionFraction: Int = _
+  @Param(Array("1", "2", "4"))
+  var intervalsCountToTriggerExtractionFraction: String = _
 
-  @Param(Array(1000, 10 * 1000, 100 * 1000, 1000 * 1000))
-  var maximumComponentSize: Int = _
+  @Param(Array("1000", "10000", "100000", "1000000"))
+  var maximumComponentSize: String = _
 
-  @Param(Array(1, 10, 100, 1000, 10 * 1000))
-  var earlyStopLeftoverCount: Int = _
+  @Param(Array("1", "10", "100", "1000", "10000"))
+  var earlyStopLeftoverCount: String = _
 
   @Benchmark
   def benchmarkScalaAIListDeque(blackhole: Blackhole): Unit = {
     val configuration = Configuration(
-      intervalsCountToCheckLookahead = intervalsCountToCheckLookahead,
-      intervalsCountToTriggerExtraction = intervalsCountToCheckLookahead / intervalsCountToTriggerExtractionFraction,
-      maximumComponentSize = maximumComponentSize,
-      earlyStopLeftoverCount = earlyStopLeftoverCount
+      intervalsCountToCheckLookahead    = intervalsCountToCheckLookahead.toInt,
+      intervalsCountToTriggerExtraction = intervalsCountToCheckLookahead.toInt / intervalsCountToTriggerExtractionFraction.toInt,
+      maximumComponentSize              = maximumComponentSize.toInt,
+      earlyStopLeftoverCount            = earlyStopLeftoverCount.toInt
     )
 
     val database = databaseSources(databaseSourceSet)

@@ -1,3 +1,6 @@
-# Build and cache ###
+# Build and cache
 .bsp/
 target/
+
+# IntelliJ configuration
+.idea/

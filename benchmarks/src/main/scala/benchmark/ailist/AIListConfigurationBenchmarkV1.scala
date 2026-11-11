@@ -14,7 +14,7 @@ import _root_.java.util.concurrent.TimeUnit
 @Measurement(iterations = 10, time = 10, timeUnit = TimeUnit.SECONDS)
 @OutputTimeUnit(TimeUnit.MILLISECONDS)
 @State(Scope.Benchmark)
-class AIListConfigurationBenchmark {
+class AIListConfigurationBenchmarkV1 {
 
   @Param(Array(
     "consecutive",

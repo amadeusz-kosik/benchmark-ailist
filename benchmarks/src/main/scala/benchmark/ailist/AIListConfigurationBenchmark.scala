@@ -10,8 +10,8 @@ import _root_.java.util.concurrent.TimeUnit
 
 @BenchmarkMode(Array(Mode.AverageTime))
 @Fork(1)
-@Warmup(iterations = 3, time = 10, timeUnit = TimeUnit.SECONDS)
-@Measurement(iterations = 10, time = 90, timeUnit = TimeUnit.SECONDS)
+@Warmup(iterations = 3, time = 3, timeUnit = TimeUnit.SECONDS)
+@Measurement(iterations = 10, time = 10, timeUnit = TimeUnit.SECONDS)
 @OutputTimeUnit(TimeUnit.MILLISECONDS)
 @State(Scope.Benchmark)
 class AIListConfigurationBenchmark {
@@ -21,6 +21,7 @@ class AIListConfigurationBenchmark {
     "sparse",
     "overlapping",
     "lasting",
+    "mixed",
     "outliers"
   ))
   var databaseSourceSet: String = _
@@ -37,10 +38,10 @@ class AIListConfigurationBenchmark {
   @Param(Array("1", "2", "4"))
   var intervalsCountToTriggerExtractionFraction: String = _
 
-  @Param(Array("1000", "10000", "100000", "1000000"))
+  @Param(Array("10000", "100000", "1000000"))
   var maximumComponentSize: String = _
 
-  @Param(Array("1", "10", "100", "1000", "10000"))
+  @Param(Array("1", "100", "10000"))
   var earlyStopLeftoverCount: String = _
 
   @Benchmark

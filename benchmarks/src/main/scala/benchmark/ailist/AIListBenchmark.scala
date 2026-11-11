@@ -11,8 +11,8 @@ import _root_.java.util.concurrent.TimeUnit
 
 @BenchmarkMode(Array(Mode.AverageTime))
 @Fork(1)
-@Warmup(iterations = 3, time = 10, timeUnit = TimeUnit.SECONDS)
-@Measurement(iterations = 10, time = 90, timeUnit = TimeUnit.SECONDS)
+@Warmup(iterations = 3, time = 3, timeUnit = TimeUnit.SECONDS)
+@Measurement(iterations = 10, time = 30, timeUnit = TimeUnit.SECONDS)
 @OutputTimeUnit(TimeUnit.MILLISECONDS)
 @State(Scope.Benchmark)
 class AIListBenchmark {
@@ -22,6 +22,7 @@ class AIListBenchmark {
     "sparse",
     "overlapping",
     "lasting",
+    "mixed",
     "outliers"
   ))
   var databaseSourceSet: String = _
